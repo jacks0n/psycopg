@@ -82,6 +82,7 @@ class AsyncConnection(BaseConnection[Row]):
         self.cursor_factory = AsyncCursor
         self.server_cursor_factory = AsyncServerCursor
 
+    @overload
     @classmethod
     async def connect(
         cls,
@@ -90,10 +91,37 @@ class AsyncConnection(BaseConnection[Row]):
         autocommit: bool = False,
         prepare_threshold: int | None = 5,
         context: AdaptContext | None = None,
-        row_factory: AsyncRowFactory[Row] | None = None,
+        row_factory: None = None,
         cursor_factory: type[AsyncCursor[Row]] | None = None,
         **kwargs: ConnParam,
-    ) -> Self:
+    ) -> Self: ...
+
+    @overload
+    @classmethod
+    async def connect(
+        cls,
+        conninfo: str = "",
+        *,
+        autocommit: bool = False,
+        prepare_threshold: int | None = 5,
+        context: AdaptContext | None = None,
+        row_factory: AsyncRowFactory[CursorRow],
+        cursor_factory: type[AsyncCursor[CursorRow]] | None = None,
+        **kwargs: ConnParam,
+    ) -> AsyncConnection[CursorRow]: ...
+
+    @classmethod
+    async def connect(
+        cls,
+        conninfo: str = "",
+        *,
+        autocommit: bool = False,
+        prepare_threshold: int | None = 5,
+        context: AdaptContext | None = None,
+        row_factory: AsyncRowFactory[Any] | None = None,
+        cursor_factory: type[AsyncCursor[Any]] | None = None,
+        **kwargs: ConnParam,
+    ) -> AsyncConnection[Any]:
         """
         Connect to a database server and return a new `AsyncConnection` instance.
         """

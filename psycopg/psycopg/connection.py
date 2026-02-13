@@ -78,6 +78,7 @@ class Connection(BaseConnection[Row]):
         self.cursor_factory = Cursor
         self.server_cursor_factory = ServerCursor
 
+    @overload
     @classmethod
     def connect(
         cls,
@@ -86,10 +87,37 @@ class Connection(BaseConnection[Row]):
         autocommit: bool = False,
         prepare_threshold: int | None = 5,
         context: AdaptContext | None = None,
-        row_factory: RowFactory[Row] | None = None,
+        row_factory: None = None,
         cursor_factory: type[Cursor[Row]] | None = None,
         **kwargs: ConnParam,
-    ) -> Self:
+    ) -> Self: ...
+
+    @overload
+    @classmethod
+    def connect(
+        cls,
+        conninfo: str = "",
+        *,
+        autocommit: bool = False,
+        prepare_threshold: int | None = 5,
+        context: AdaptContext | None = None,
+        row_factory: RowFactory[CursorRow],
+        cursor_factory: type[Cursor[CursorRow]] | None = None,
+        **kwargs: ConnParam,
+    ) -> Connection[CursorRow]: ...
+
+    @classmethod
+    def connect(
+        cls,
+        conninfo: str = "",
+        *,
+        autocommit: bool = False,
+        prepare_threshold: int | None = 5,
+        context: AdaptContext | None = None,
+        row_factory: RowFactory[Any] | None = None,
+        cursor_factory: type[Cursor[Any]] | None = None,
+        **kwargs: ConnParam,
+    ) -> Connection[Any]:
         """
         Connect to a database server and return a new `Connection` instance.
         """
